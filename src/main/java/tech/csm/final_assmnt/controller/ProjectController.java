@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
+    //admin
 
     @Autowired
     private ProjectService projectService;
@@ -24,10 +25,13 @@ public class ProjectController {
     }
 
     @PostMapping
-    public Project createProject(@RequestBody Project project, HttpServletRequest request) {
+    public Project createProject(@RequestBody Project project,
+                                 HttpServletRequest request) {
+
         Claims claims = (Claims) request.getAttribute("claims");
-        project.setCreatedBy(new User((Integer) claims.get("userId")));
-        return projectService.saveProject(project);
+        Integer userId = (Integer) claims.get("userId");
+        return projectService.saveProject(project, userId);
     }
+
 }
 

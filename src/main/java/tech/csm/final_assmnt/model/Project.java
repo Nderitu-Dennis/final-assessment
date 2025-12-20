@@ -2,6 +2,7 @@ package tech.csm.final_assmnt.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -13,6 +14,8 @@ import java.util.Set;
 @ToString
 @Entity
 @Table(name = "projects")
+@NoArgsConstructor
+
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

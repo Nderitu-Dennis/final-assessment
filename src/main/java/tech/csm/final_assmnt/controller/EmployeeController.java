@@ -14,20 +14,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
-
+//admin only
     @Autowired
     private EmployeeService employeeService;
 
     @GetMapping
     public List<Employee> getEmployees() {
-        return employeeService.getAllEmployees(); //admin
+
+        return employeeService.getAllEmployees();
     }
 
     @PostMapping
-    public Employee createEmployee(@RequestBody Employee employee, HttpServletRequest request) {
+    public Employee createEmployee(
+            @RequestBody Employee employee,
+            HttpServletRequest request) {
+
         Claims claims = (Claims) request.getAttribute("claims");
-        employee.setCreatedBy(new User((Integer) claims.get("userId")));
-        return employeeService.saveEmployee(employee);
+        Integer userId = (Integer) claims.get("userId");
+
+        return employeeService.saveEmployee(employee, userId);
     }
+
 }
 

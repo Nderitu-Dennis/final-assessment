@@ -2,6 +2,7 @@ package tech.csm.final_assmnt.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @ToString
 @Entity
 @Table(name = "employee_projects")
+@NoArgsConstructor
 public class EmployeeProject {
 
     @Id

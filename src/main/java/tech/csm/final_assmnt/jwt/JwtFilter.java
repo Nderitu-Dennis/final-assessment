@@ -5,24 +5,25 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.annotation.DeclarePrecedence;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
-@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
-    private  JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().equals("/api/login"); //skip this
+        return request.getRequestURI().startsWith("/api/login");
     }
 
     @Override
@@ -32,49 +33,59 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        log.warn("Filter start...");
         String authHeader = request.getHeader("Authorization");
 
-        log.warn(authHeader);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             forbid(response, "Missing or invalid Authorization header");
             return;
         }
 
-        String token1= authHeader;
+//extracting token
         String token = authHeader.substring(7);
-        System.out.println("token.. " + token1);
-        System.out.println("token.. aftr split " + token);
-
 
         Claims claims;
         try {
+            // Validating token & extracting claims
             claims = jwtUtil.extractClaims(token);
         } catch (Exception e) {
             forbid(response, "Invalid or expired token");
             return;
         }
 
+        // reading required claims
         String role = claims.get("role", String.class);
+        Integer userId = claims.get("userId", Integer.class);
+        String username = claims.get("username", String.class);
+
         String uri = request.getRequestURI();
         String method = request.getMethod();
-
-        log.warn("Authorizing....");
 
         if (!isAuthorized(role, uri, method)) {
             forbid(response, "Access denied");
             return;
         }
 
-        log.warn("Get claims....");
+        // marking request as authenticated
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        List.of(new SimpleGrantedAuthority(role))
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // making claims available to controllers if needed
         request.setAttribute("claims", claims);
+
+        // filter chain
         filterChain.doFilter(request, response);
     }
 
     private boolean isAuthorized(String role, String uri, String method) {
 
         if ("ROLE_ADMIN".equals(role)) {
-            return true;
+            return true; // admin has full access
         }
 
         if ("ROLE_MANAGER".equals(role)) {
@@ -96,5 +107,4 @@ public class JwtFilter extends OncePerRequestFilter {
         response.getWriter()
                 .write("{\"error\":\"" + message + "\"}");
     }
-
 }
