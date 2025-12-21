@@ -1,14 +1,17 @@
 package tech.csm.final_assmnt.config;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import tech.csm.final_assmnt.jwt.JwtFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
@@ -23,14 +26,25 @@ public class SecurityConfig {
                         sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        // Allow JSP pages (view layer)
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/dashboard",
+                                "/employees",
+                                "/projects",
+                                "/assign",
+                                "/my-projects",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
+                        ).permitAll()
 
-        .addFilterBefore(jwtFilter,
-                UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers("/api/login").permitAll()
+                        .anyRequest().permitAll()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
-

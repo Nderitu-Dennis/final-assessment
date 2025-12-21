@@ -21,6 +21,7 @@ public class EmployeeProjectController {
     @GetMapping
     public List<EmployeeProject> viewAssignedProjects(HttpServletRequest request) {
         Claims claims = (Claims) request.getAttribute("claims");
+        System.out.println("##Claimns$$ "+ claims);
         Integer userId = (Integer) claims.get("userId");
         return employeeProjectService.getProjectsForEmployee(userId);
     }

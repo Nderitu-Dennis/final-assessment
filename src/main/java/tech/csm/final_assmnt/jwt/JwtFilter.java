@@ -23,8 +23,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/api/login");
+        String uri = request.getRequestURI();
+        //skip jwt for login API & jsp
+
+        return
+                uri.equals("/api/login") ||
+                        !uri.startsWith("/api/");
     }
+
 
     @Override
     protected void doFilterInternal(
@@ -40,7 +46,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-//extracting token
+        // Extracting token
         String token = authHeader.substring(7);
 
         Claims claims;
@@ -52,7 +58,10 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // reading required claims
+//        making claims available to controllers
+        request.setAttribute("claims", claims);
+
+        // Reading required claims
         String role = claims.get("role", String.class);
         Integer userId = claims.get("userId", Integer.class);
         String username = claims.get("username", String.class);
@@ -60,12 +69,13 @@ public class JwtFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
+        // Check authorization based on role
         if (!isAuthorized(role, uri, method)) {
             forbid(response, "Access denied");
             return;
         }
 
-        // marking request as authenticated
+        // Marking request as authenticated
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
                         username,
@@ -75,25 +85,29 @@ public class JwtFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // making claims available to controllers if needed
-        request.setAttribute("claims", claims);
-
-        // filter chain
+         // Continue filter chain
         filterChain.doFilter(request, response);
     }
 
     private boolean isAuthorized(String role, String uri, String method) {
 
+        // ADMIN has full access to all APIs
         if ("ROLE_ADMIN".equals(role)) {
-            return true; // admin has full access
+            return true;
         }
 
+        // MANAGER can view employees/projects and assign employees to projects
         if ("ROLE_MANAGER".equals(role)) {
-            return uri.startsWith("/api/assign");
+            return uri.startsWith("/api/employees") ||
+                    uri.startsWith("/api/projects") ||
+                    uri.startsWith("/api/assign");
         }
 
+        // EMPLOYEE can only view their assigned projects
         if ("ROLE_EMPLOYEE".equals(role)) {
-            return uri.startsWith("/api/projects/view");
+            return uri.startsWith("/api/projects/my-projects") ||
+                    uri.startsWith("/api/my-projects") ||
+                    (uri.startsWith("/api/projects") && method.equals("GET"));
         }
 
         return false;
