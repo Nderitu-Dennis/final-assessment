@@ -32,7 +32,7 @@ public class Project {
     private LocalDate endDate;
 
     @ManyToOne
-    @JoinColumn(name = "created_by")
+    @JoinColumn(name = "created_by_user_id")
     private User createdBy;
 
 }

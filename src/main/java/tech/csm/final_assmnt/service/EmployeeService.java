@@ -16,13 +16,10 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @Autowired
-    private EntityManager entityManager;
 
     @Transactional
-    public Employee saveEmployee(Employee employee, Integer createdByUserId) {
-        User userRef = entityManager.getReference(User.class, createdByUserId);
-        employee.setCreatedBy(userRef);
+    public Employee saveEmployee(Employee employee, Integer userId) {
+        employee.setUserId(userId);
 
         return employeeRepository.save(employee);
     }

@@ -20,14 +20,12 @@ public class Employee {
     private Integer employeeId;
 
     private String name;
-
     private String email;
 
     @Column(name="department_id")
     private Integer departmentId;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    @Column(name = "user_id")
+    private Integer userId;
 
 }

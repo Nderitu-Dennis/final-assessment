@@ -14,16 +14,31 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/projects/view")
 public class EmployeeProjectController {
-//employees see only their prjcts
+    //employees see only their prjcts
     @Autowired
     private EmployeeProjectService employeeProjectService;
 
     @GetMapping
     public List<EmployeeProject> viewAssignedProjects(HttpServletRequest request) {
         Claims claims = (Claims) request.getAttribute("claims");
-        System.out.println("##Claimns$$ "+ claims);
+        System.out.println("##Claimns$$ " + claims);
         Integer userId = (Integer) claims.get("userId");
-        return employeeProjectService.getProjectsForEmployee(userId);
+
+        System.out.println("user id --" + userId);
+
+        List<EmployeeProject> projects = employeeProjectService.getProjectsForEmployee(userId);
+        System.out.println("***printing employee projects");
+
+        if (!projects.isEmpty()) {
+            for (EmployeeProject emp : projects) {
+                System.out.println(emp);
+            }
+        } else {
+            System.out.println("emp is empty " );
+        }
+
+
+        return projects;
     }
 }
 

@@ -7,7 +7,9 @@ public class PasswordGen {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
        // System.out.println(encoder.encode("admin123"));
        // System.out.println(encoder.encode("manager123"));
-        System.out.println(encoder.encode("employee125"));
+       // System.out.println(encoder.encode("employee125"));
+        System.out.println(encoder.encode("manager125"));
+
 
 
     }

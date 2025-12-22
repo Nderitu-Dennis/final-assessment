@@ -6,4 +6,5 @@ import tech.csm.final_assmnt.model.Employee;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+    Employee findByUserId(Integer userId);
 }
