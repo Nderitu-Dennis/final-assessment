@@ -23,7 +23,8 @@ public class AssignmentController {
     private EmployeeProjectService employeeProjectService;
 
     @PostMapping
-    public EmployeeProject assignEmployee(@RequestBody Map<String, Integer> payload, HttpServletRequest request) {
+    public EmployeeProject assignEmployee(@RequestBody Map<String, Integer> payload,
+                                          HttpServletRequest request) {
         Claims claims = (Claims) request.getAttribute("claims");
         Integer employeeId = payload.get("employeeId");
         Integer projectId = payload.get("projectId");

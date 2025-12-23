@@ -24,13 +24,11 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        //skip jwt for login API & jsp
-
+        //skip jwt for login API & jsp(if it doesnt start with /api/)
         return
                 uri.equals("/api/login") ||
                         !uri.startsWith("/api/");
     }
-
 
     @Override
     protected void doFilterInternal(
@@ -38,7 +36,6 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
-
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -85,7 +82,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-         // Continue filter chain
+        // Continue filter chain
         filterChain.doFilter(request, response);
     }
 
@@ -98,16 +95,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // MANAGER can view employees/projects and assign employees to projects
         if ("ROLE_MANAGER".equals(role)) {
-            return uri.startsWith("/api/employees") ||
-                    uri.startsWith("/api/projects") ||
-                    uri.startsWith("/api/assign");
+            return uri.equals("/api/assign") ||
+                    uri.equals("/api/employees") ||
+                    uri.equals("/api/projects");
         }
 
         // EMPLOYEE can only view their assigned projects
         if ("ROLE_EMPLOYEE".equals(role)) {
-            return uri.startsWith("/api/projects/my-projects") ||
-                    uri.startsWith("/api/my-projects") ||
-                    (uri.startsWith("/api/projects") && method.equals("GET"));
+            return uri.equals("/api/projects/view")
+                     && method.equals("GET");
         }
 
         return false;

@@ -64,6 +64,7 @@ $(document).ready(function() {
 
             // Iterate over the list of data received
             $.each(data, function(index, myprjct) {
+            console.log("my-projects", myprjct)
                 let row = "<tr>";
                 row += "<td>" + myprjct.projectId + "</td>"; // Access JSON fields by name
                 row += "<td>" + myprjct.assignedDate + "</td>";
