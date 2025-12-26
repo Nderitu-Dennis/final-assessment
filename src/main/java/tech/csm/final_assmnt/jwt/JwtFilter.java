@@ -25,17 +25,14 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String uri = request.getRequestURI();
         //skip jwt for login API & jsp(if it doesnt start with /api/)
-        return
-                uri.equals("/api/login") ||
-                        !uri.startsWith("/api/");
+        return  uri.equals("/api/login") || !uri.startsWith("/api/");
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain)
+    protected void doFilterInternal( HttpServletRequest request,
+            HttpServletResponse response,  FilterChain filterChain)
             throws ServletException, IOException {
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -45,7 +42,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Extracting token
         String token = authHeader.substring(7);
-
         Claims claims;
         try {
             // Validating token & extracting claims
@@ -57,20 +53,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
 //        making claims available to controllers
         request.setAttribute("claims", claims);
+        System.out.println("claims frm jwt Filter.. " + claims);
 
         // Reading required claims
         String role = claims.get("role", String.class);
         Integer userId = claims.get("userId", Integer.class);
         String username = claims.get("username", String.class);
-
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
-        // Check authorization based on role
-        if (!isAuthorized(role, uri, method)) {
-            forbid(response, "Access denied");
-            return;
-        }
+        System.out.println("required claims are: role: " + role + "\n userid: " + userId + "\nusername: " + username + "\nuri: "
+                + uri +"\nmethod: " + method);
 
         // Marking request as authenticated
         UsernamePasswordAuthenticationToken authentication =
@@ -82,10 +75,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+
+        // Check authorization based on role
+        if (!isAuthorized(role, uri, method)) {
+            forbid(response, "Access denied");
+            return;
+        }
+
         // Continue filter chain
         filterChain.doFilter(request, response);
     }
-
+//authorization must happen in filter
     private boolean isAuthorized(String role, String uri, String method) {
 
         // ADMIN has full access to all APIs
@@ -111,7 +111,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private void forbid(HttpServletResponse response, String message)
             throws IOException {
-
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
         response.getWriter()

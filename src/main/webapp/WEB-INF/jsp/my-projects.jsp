@@ -16,7 +16,7 @@
 </head>
 <body class="container mt-4 bg-dark text-white">
 
-<h3 class="text-secondary">My Assigned Projects</h3>
+<h3 class="text-white">My Assigned Projects</h3>
 <!-- employee -->
 
 <table class="table table-bordered table-striped mt-3">

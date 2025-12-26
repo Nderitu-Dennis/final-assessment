@@ -23,25 +23,26 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)  //no sessions, tokens are being used
                 )
+//                authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        // Allow JSP pages (view layer)
+                        //  public gates dont need token
                         .requestMatchers(
                                 "/",
-                                "/login",
+                               "/login",
+                                "/api/login").permitAll()
+
+                        //view, address bar url's
+                        .requestMatchers("/*jsp",
                                 "/dashboard",
                                 "/employees",
                                 "/projects",
                                 "/assign",
-                                "/my-projects",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**"
-                        ).permitAll()
+                                "/my-projects").permitAll()
 
-                        .requestMatchers("/api/login").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll() //any other request to go to , jwtfilter  handling
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

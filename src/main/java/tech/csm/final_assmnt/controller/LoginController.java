@@ -15,14 +15,12 @@ import java.util.Map;
 @RequestMapping("/api")
 public class LoginController {
 
-    private final AuthService authService;
-    private final JwtUtil jwtUtil;
+    @Autowired
+    private  AuthService authService;
 
     @Autowired
-    public LoginController(AuthService authService, JwtUtil jwtUtil) {
-        this.authService = authService;
-        this.jwtUtil = jwtUtil;
-    }
+    private  JwtUtil jwtUtil;
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {

@@ -11,7 +11,7 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-//    checking login credentials
+//    checking login credentials frm the DB
 
     @Autowired
     private UserRepository userRepository;
@@ -26,6 +26,7 @@ public class AuthService {
         }
 
         User user = optionalUser.get();
+
         if (!user.getIsActive()) {
             throw new Exception("User is not active");
         }
