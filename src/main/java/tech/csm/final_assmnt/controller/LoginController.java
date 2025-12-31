@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.csm.final_assmnt.dto.LoginDto;
 import tech.csm.final_assmnt.jwt.JwtUtil;
 import tech.csm.final_assmnt.model.User;
 import tech.csm.final_assmnt.service.AuthService;
@@ -23,10 +24,10 @@ public class LoginController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
 
-        String username = loginRequest.get("username");
-        String password = loginRequest.get("password");
+        String username = loginDto.getUsername();
+        String password = loginDto.getPassword();
 
         try {
             User user = authService.authenticate(username, password);
